@@ -54,6 +54,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void directSort() {
         //todo:直接选择排序的具体实现
+        //读取输入框内容，将第一个(a)作为最小数，用第一个（a）和第二个（b）作比较，如果第二个小于第一个（b<a），那么把第二个作为最小数并把第二个设置为最小数（b最小）。
+        //b<a;
+        //再将第一个数（a）和第三个数（c）作比较，如果第三个数比第一个小（c<a），再用第三个和第二大的作比较，如果比第二个小（c<b）,那么，第三个数是最小数。
+        //c<b<a
+        //再用a和第四个数（D）相比，如果a大于第四个数（D<a），再用第四个数和第三大的数相比，如果比第三个数小（D<b），再用D和最小的c相比，如果不比c小（D>c），那么C是最小的。
+        //C<D<B<A
     }
 
     private void generateItems() {
@@ -64,3 +70,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 }
+
