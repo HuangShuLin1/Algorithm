@@ -1,19 +1,32 @@
 package net.lzzy.algorithm;
 
+import android.annotation.SuppressLint;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputFilter;
+import android.util.AndroidException;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ZoomControls;
 
-import net.lzzy.algorithm.aigorlib.DirectSort;
+import net.lzzy.algorithm.algorlib.BaseSort;
+import net.lzzy.algorithm.algorlib.DirectSort;
+import net.lzzy.algorithm.algorlib.InsertSort;
+import net.lzzy.algorithm.algorlib.SearchFactory;
+import net.lzzy.algorithm.algorlib.sortFactory;
 
+import org.json.JSONException;
+
+import java.time.chrono.MinguoChronology;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
+import java.util.Dictionary;
+import java.util.Objects;
 import java.util.Random;
-
-import javax.xml.transform.Templates;
 
 /**
  * @author Administrator
@@ -22,17 +35,36 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Integer[] items;
     private EditText edtItems;
     private TextView tvResult;
-
+    private Spinner spinner;
+    private View container;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        spinner=findViewById(R.id.Spinner);
         edtItems = findViewById(R.id.activity_main_edt_items);
         findViewById(R.id.activity_main_btn_generate).setOnClickListener(this);
         findViewById(R.id.activity_main_btn_sort).setOnClickListener(this);
         tvResult = findViewById(R.id.activity_main_tv_result);
+        initSpinner();
+
+
     }
+    @SuppressLint("WrongViewCast")
+    private void initSearch(){
+        spinner=findViewById(R.id.activity_main_btn_search);
+        spinner.setAdapter(new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, SearchFactory.getsearchNames()));
+        container=findViewById(R.id.activity_min_btn_container);
+        findViewById(R.id.activity_main_btn_search).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+
 
     @Override
     public void onClick(View v) {
@@ -41,22 +73,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 generateItems();
                 displayItems(edtItems);
                 break;
-            case R.id.activity_main_btn_sort:
-                DirectSort<Integer> sort=new DirectSort<>(items);
-                sort.sortTime();
-                String result=sort.getResult();
 
-                Toast.makeText(this, "总时长"+sort.getDuration(), Toast.LENGTH_SHORT).show();  tvResult.setText(result);
-//                directSort();
-                intsertSort();
+            case R.id.activity_main_btn_sort:
+
+                BaseSort<Integer> sort=
+                        sortFactory.getInstance(spinner.getSelectedItemPosition(),items);
+                BaseSort<Integer> sortNotNull = Objects.requireNonNull(sort);
+                sortNotNull.sortTime();
+                /*InsertSort<Integer> sort = new InsertSort<>(items);*/
+                String result = sort.getResult();
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder.setTitle("排序成功");
+                builder.setMessage("对比次数：" + sort.getCompareCount() +
+                        "\n" + "移动次数：" + sort.getCompareMove() +
+                        "\n" + "交换次数：" + sort.getCompareSwop() +
+                        "\n" + "运算时长: " + sort.getTime() + "秒")
+                        .show();
                 displayItems(tvResult);
                 break;
-            default:
-                break;
+            case R.id.activity_main_btn_search:
+
         }
     }
 
-    private void displayItems(TextView tv) {
+    private void initSpinner() {
+        Spinner spinner = findViewById(R.id.Spinner);
+        spinner.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_spinner_dropdown_item, sortFactory.getsortNames()));
+
+    }
+
+
+
+
+    private void displayItems(TextView tv) {    //生成随机数并显示出随机数
         String display = "";
         for (Integer i : items) {
             display = display.concat(i + ",");
@@ -65,52 +114,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv.setText(display);
     }
 
-    private void directSort() {
-        //todo:直接选择排序的具体实现
-
-        for (int i = 0;i<items.length-1;i++){
-            int minPos=i;
-            for (int j=i+1;j < items.length;j++){
-                if (items[minPos].compareTo(items[j])>0){
-                    minPos = j;
-                }
-            }
-            swap(minPos,i);
-        }
-
-//        int temp;
-//        for (i= 0;i<items.length-1;i++){
-//            for(j=0;j<items.length-1;j++){
-//                if (items[j]>items[j+1]){
-//                    temp=items[j];
-//                    items[j]=items[j+1];
-//                    items[j+1]=temp;
-//                }
-//            }
-//        }
-    }
-    private void intsertSort(){
-        //todo:直接插入排序
-        for (int i=1;i<items.length;i++){
-            if (items[i]<items[i-1]){
-                int temp=items[i];//监视哨temp
-                int k=i-1;//k表示为有序区的最后一位
-                for (int j=k;j>=0&&temp<items[j];j--){//从第i-1为向前并移动，直到找到小于第i位停止
-                    items[j+1]=items[j];
-                    k--;//有序区域的位置减少
-                }
-                items[k+1]=temp;
-            }
-        }
-    }
-
     private void swap(int m, int n) {
-        int tmp=items[m];
-        items[m]=items[n];
-        items[n]=tmp;
+        int temp = items[m];
+        items[m] = items[n];
+        items[n] = temp;
     }
 
-    private void generateItems() {
+
+    private void generateItems() {       //生成随机数
         items = new Integer[10];
         Random generator = new Random();
         for (int i = 0; i < items.length; i++) {

@@ -1,27 +1,31 @@
 package net.lzzy.algorithm.aigorlib;
 
 /**
- * Created by lzzy_gxy on 2019/6/13.
+ * Created by lzzy_gxy on 2019/6/22.
  * Description:
  */
-public class DirectSort <T extends Comparable<? super T>> extends BaseSort {
-    public DirectSort(T[] items) {
-        super(items);
+public class DirectSort <T extends Comparable<? super T>> extends BaseSort<T>{
+
+    public DirectSort(T[] itmes) {
+        super(itmes);
     }
-    //field字段
+    void swop(int a,int b){   //5、用于交换两个元素位置的方法
+        T temp=itmes[a];
+        itmes[a]=itmes[b];
+        itmes[b]=temp;
+        compareSwop++;         //交换次数++
+    }
 
-    public void Sort() {
-
-        for (int i = 0; i < items.length - 1; i++) {
-            int minPos = i;
-            for (int j = i + 1; j < items.length; j++) {
-                if (items[minPos].compareTo(items[j]) > 0) {
-                    minPos = j;
+    public void sort(){            //7、排序的方法
+        for (int i=0;i<itmes.length-1;i++){
+            int minPos=i;
+            for (int j=i+1;j<itmes.length;j++){
+                if (comare(itmes[minPos],(itmes[j]))){
+                    minPos=j;
                 }
             }
-            swap(minPos, i);
+            swop(minPos,i);
         }
-
     }
 
 }
